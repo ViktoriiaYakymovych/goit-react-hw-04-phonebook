@@ -5,10 +5,11 @@ import {
   ContactListButton,
 } from './ContactList.styled';
 
-export const ContactList = ({ data, contactDelete }) => {
+export const ContactList = ({ data, filter,  contactDelete }) => {
   return (
     <ContactListList>
-      {data.map(({ id, name, number }) => {
+      {data.filter(({name}) => name.toLowerCase
+      ().includes(filter.toLowerCase())).map(({ id, name, number }) => {
         return (
           <ContactListItem key={id}>
             <p>{name}</p>
@@ -31,5 +32,6 @@ ContactList.propTypes = {
       number: PropTypes.string.isRequired,
     })
   ),
+  filter: PropTypes.string.isRequired,
   contactDelete: PropTypes.func.isRequired,
 };
