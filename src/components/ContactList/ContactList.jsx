@@ -1,37 +1,17 @@
-import PropTypes from 'prop-types';
-import {
-  ContactListList,
-  ContactListItem,
-  ContactListButton,
-} from './ContactList.styled';
+import { nanoid } from 'nanoid';
 
-export const ContactList = ({ data, filter,  contactDelete }) => {
+import { ContactCard } from 'components/ContactCard/ContactCard';
+
+import { StyledList } from './ContactList.styled';
+
+export const ContactList = ({ contacts, onDelete}) => {
   return (
-    <ContactListList>
-      {data.filter(({name}) => name.toLowerCase
-      ().includes(filter.toLowerCase())).map(({ id, name, number }) => {
-        return (
-          <ContactListItem key={id}>
-            <p>{name}</p>
-            <p>{number}</p>
-            <ContactListButton type="button" onClick={() => contactDelete(id)}>
-              Delete Contact
-            </ContactListButton>
-          </ContactListItem>
-        );
-      })}
-    </ContactListList>
+    <StyledList>
+      {contacts.map(contact => (
+        <li key={nanoid()}>
+          <ContactCard contact={contact} onDelete={onDelete}/>
+        </li>
+      ))}
+    </StyledList>
   );
-};
-
-ContactList.propTypes = {
-  data: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ),
-  filter: PropTypes.string.isRequired,
-  contactDelete: PropTypes.func.isRequired,
 };

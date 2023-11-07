@@ -1,50 +1,82 @@
-import { useState, useEffect } from 'react';
+import { Component } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 
-import {ContactsForm} from '../ContactsForm/ContactsForm';
-import { Filter } from '../Filter/Filter';
-import { ContactList } from '../ContactList/ContactList';
+import { ContactForm } from 'components/ContactForm/ContactForm';
+import { Section } from 'components/Section/Section';
+import { ContactList } from 'components/ContactList/ContactList';
+import { Filter } from 'components/Filter/Filter';
+import { Layout } from 'components/Layout';
 
-import { AppContainer, AppTitle } from './App.styled';
+const localStorageKey = 'contacts';
+export class App extends Component {
+  state = {
+    contacts: [],
+    filter: '',
+  };
 
-export const App = () => {
-  const [filter, setFilter] = useState('');
-  const [contacts, setContacts] = useState(() => {
-    return JSON.parse(localStorage.getItem('contacts') ?? [])
-  })
+  componentDidMount() {
+    const savedContacts = localStorage.getItem(localStorageKey);
+    if (savedContacts !== null) {
+      this.setState({
+        contacts: JSON.parse(savedContacts),
+      })
+    }
+  }
 
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts))
-  }, [contacts]);
+  componentDidUpdate(prevProps, prevState) {
+    const {contacts: prevContacts} = prevState;
+    const {contacts: nextContacts} = this.state;
 
-  const addNewContact = newContact => {
-    if(contacts.find(contact => contact.name === newContact.name)) {
-      return alert(`${newContact.name} is already in contacts`);
+    if(prevContacts !== nextContacts) {
+      localStorage.setItem(localStorageKey, JSON.stringify(nextContacts))
+    }
+  }
+
+  addNewContact = newContact => {
+    if (this.state.contacts.find(contact => contact.name === newContact.name)) {
+      return toast.error(
+        `${newContact.name} is already added to Your contact's list`
+      );
     } 
-    setContacts(prev => [...prev, newContact])
+    this.setState(prevState => {
+      return {
+        contacts: [...prevState.contacts, newContact],
+      };
+    });
   };
 
-  const filterChange = e => {
-    setFilter(e.target.value)
-  };
+  filteredContact = e => {
+    this.setState({filter: e.target.value});
+  }
 
-  const contactDelete = contactId => {
-    setContacts(prev => prev.filter(contact => contact.id !== contactId));
-  };
+  normalizedContact = () => {
+    const {contacts, filter} = this.state;
+    const normalizedFilter = filter.toLowerCase();
+    
+    return contacts.filter(contact => contact.name.toLocaleLowerCase().includes(normalizedFilter));
+  }
 
+  contactDelete = (id) => {
+    this.setState(prevState => {
+      return {
+        contacts: prevState.contacts.filter(contact => contact.id !== id)
+      }
+    })
+  }
+
+  render() {
+    const {filter} = this.state;
     return (
-      <AppContainer>
-        <AppTitle>Phonebook</AppTitle>
-        <ContactsForm addNewContact={addNewContact} />
-        <AppTitle>Contacts</AppTitle>
-        <Filter
-          filteredValue={filter}
-          filterChange={filterChange}
-        />
-        <ContactList
-          data={contacts}
-          filter={filter}
-          contactDelete={contactDelete}
-        />
-      </AppContainer>
+      <Layout>
+        <Section title="Phonebook">
+          <ContactForm addContact={this.addNewContact} />
+        </Section>
+        <Section title="Contacts">
+          <Filter value={filter} filteredContacts={this.filteredContact}/>
+          <ContactList contacts={this.normalizedContact()} onDelete={this.contactDelete}/>
+        </Section>
+        <Toaster/>
+      </Layout>
     );
+  }
 }

@@ -1,5 +1,13 @@
-import styled from '@emotion/styled';
+import styled from "styled-components";
 
-export const FilterText = styled.p`
-  margin-bottom: 10px;
+export const Lable = styled.label`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+`;
+
+export const Input = styled.input`
+  padding: 4px;
 `;
