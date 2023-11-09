@@ -27,12 +27,16 @@ export const App = () => {
   }, [contacts]);
 
   const addNewContact = newContact => {
-    if (contacts.find(contact => contact.name === newContact.name)) {
+    if (
+      contacts.find(
+        contact => contact.name.toLowerCase() === newContact.name.toLowerCase()
+      )
+    ) {
       return toast.error(
         `${newContact.name} is already added to Your contact's list`
       );
     }
-    setContacts(prevState => ([ ...prevState, newContact ]));
+    setContacts(prevState => [...prevState, newContact]);
   };
 
   const filteredContact = e => {
